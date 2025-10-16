@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "npx prisma generate",
-    "build": "tsc && node verify-build.js && echo 'Build completed successfully'",
-    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node start.js",
     "dev": "tsx watch src/index.ts",
     "generate": "zenstack generate",
     "db:push": "prisma db push",
