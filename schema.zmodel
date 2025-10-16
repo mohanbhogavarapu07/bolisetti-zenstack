@@ -1,0 +1,293 @@
+// Datasource
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres.mqvtfijggstbztaxmonu:Mohan@2005@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+}
+
+// Generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Core User Management
+model User {
+  id          String   @id @default(cuid())
+  firstName   String?
+  lastName    String?
+  email       String?  @unique
+  phoneNumber String?  @unique
+  voterId     String?  @unique
+  profilePictureUrl String?
+  address     String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign Keys
+  roleId      String?
+  constituencyId String?
+
+  // Relations
+  role        Role? @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  constituency Constituency? @relation(fields: [constituencyId], references: [id], onDelete: SetNull)
+  grievances  Grievance[]
+  notifications Notification[]
+  comments    GrievanceComment[]
+  sessions    Session[]
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+
+  // Access policies
+  @@allow('all', true)
+}
+
+model Constituency {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  grievances  Grievance[]
+
+  // Access policies
+  @@allow('all', true)
+}
+
+// Grievance Management
+model Grievance {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  address      String
+  area         String?
+  status       GrievanceStatus @default(OPEN)
+  priority     Priority @default(MEDIUM)
+  createdAt    DateTime @default(now())
+  lastUpdated  DateTime @updatedAt
+
+  // Foreign Keys
+  userId       String
+  constituencyId String?
+  departmentId String?
+  statusId     String?
+  mediaId      String?  // Link to Media table for image
+
+  // Relations
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  constituency Constituency? @relation(fields: [constituencyId], references: [id], onDelete: SetNull)
+  department   GrievanceDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  statusEnum   GrievanceStatusEnum? @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  media        Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  comments     GrievanceComment[]
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model GrievanceDepartment {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  grievances  Grievance[]
+
+  // Access policies
+  @@allow('all', true)
+}
+
+model GrievanceStatusEnum {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  grievances  Grievance[]
+
+  // Access policies
+  @@allow('all', true)
+}
+
+// GrievancePhoto model removed - using Media table instead
+
+model GrievanceComment {
+  id          String   @id @default(cuid())
+  content     String
+  createdAt   DateTime @default(now())
+
+  // Foreign Keys
+  grievanceId String
+  userId      String
+
+  // Relations
+  grievance   Grievance @relation(fields: [grievanceId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+// App Content & Events
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String?
+  projectStatus String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model ScheduleEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  location    String?
+  eventDatetime DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  title       String
+  mediaUrl    String
+  type        MediaType
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  grievances  Grievance[]  // Media can be linked to grievances
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign Keys
+  userId      String?
+
+  // Relations
+  user        User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+// Authentication System Models
+model VoterId {
+  id          String   @id @default(cuid())
+  voterId     String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+// Admin System Models (Separate from User system)
+model Admin {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String   @unique
+  password    String   // Hashed password
+  isActive    Boolean  @default(true)
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Access policies - Admin only
+  @@allow('all', true)
+}
+
+model OTP {
+  id          String   @id @default(cuid())
+  phoneNumber String
+  otp         String
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  userId      String
+  phoneNumber String
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Access policies - Allow all operations for development
+  @@allow('all', true)
+}
+
+// Enums
+enum GrievanceStatus {
+  OPEN
+  IN_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
