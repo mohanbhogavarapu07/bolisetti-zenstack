@@ -2,10 +2,10 @@
   "name": "bolisetti-zenstack-service",
   "version": "1.0.0",
   "description": "ZenStack microservice for Bollisetti backend",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "prebuild": "npx prisma generate",
-    "build": "tsc",
+    "prebuild": "npx prisma generate && npx zenstack generate",
+    "build": "npx prisma generate && npx zenstack generate && tsc",
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "generate": "zenstack generate",

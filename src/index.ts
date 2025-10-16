@@ -19,7 +19,6 @@ if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = "postgresql://postgres.mqvtfijggstbztaxmonu:Mohan@2005@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true";
 }
 
-console.log('DATABASE_URL loaded:', process.env.DATABASE_URL ? 'Yes' : 'No');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -103,37 +102,20 @@ app.post('/storage/upload', async (req, res) => {
     }
 
     // Handle JSON upload (from ZenStack client)
-    console.log('🔍 ZenStack Upload Debug - JSON Request:');
-    console.log('  - Headers:', req.headers);
-    console.log('  - Body keys:', Object.keys(req.body));
-    
     const { file, filename, contentType: ct, folder: f } = req.body;
     
-    console.log('  - File present:', !!file);
-    console.log('  - Filename:', filename);
-    console.log('  - ContentType:', ct);
-    console.log('  - Folder:', f);
-    
     if (!file || !filename || !ct) {
-      console.log('❌ Missing required fields');
       return res.status(400).json({ error: 'Missing required fields: file, filename, contentType' });
     }
 
     // Decode base64 file
-    console.log('🔍 Decoding base64 file...');
     const base64Data = file.replace(/^data:[^;]+;base64,/, '');
     fileBuffer = Buffer.from(base64Data, 'base64');
     fileName = filename;
     contentType = ct;
     folder = f || 'uploads';
-    
-    console.log('  - Decoded file size:', fileBuffer.length, 'bytes');
-    console.log('  - Final fileName:', fileName);
-    console.log('  - Final contentType:', contentType);
-    console.log('  - Final folder:', folder);
 
     // Upload to Supabase Storage
-    console.log('🔍 Calling storageService.uploadFile...');
     const publicUrl = await storageService.uploadFile(fileBuffer, fileName, contentType, folder);
 
     res.json({
