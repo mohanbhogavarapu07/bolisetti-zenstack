@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "npx prisma generate",
     "build": "tsc",
-    "start": "node start.js",
+    "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "generate": "zenstack generate",
     "db:push": "prisma db push",
