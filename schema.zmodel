@@ -76,6 +76,7 @@ model Grievance {
   area         String?
   status       GrievanceStatus @default(OPEN)
   priority     Priority @default(MEDIUM)
+  imageUrl     String?  // Direct Supabase URL for image
   createdAt    DateTime @default(now())
   lastUpdated  DateTime @updatedAt
 
@@ -84,14 +85,12 @@ model Grievance {
   constituencyId String?
   departmentId String?
   statusId     String?
-  mediaId      String?  // Link to Media table for image
 
   // Relations
   user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
   constituency Constituency? @relation(fields: [constituencyId], references: [id], onDelete: SetNull)
   department   GrievanceDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   statusEnum   GrievanceStatusEnum? @relation(fields: [statusId], references: [id], onDelete: SetNull)
-  media        Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   comments     GrievanceComment[]
 
   // Access policies - Allow all operations for development
@@ -162,6 +161,7 @@ model Project {
   description String
   location    String?
   projectStatus String?
+  imageUrl    String?  // Direct Supabase URL for project image
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -191,7 +191,7 @@ model Media {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  grievances  Grievance[]  // Media can be linked to grievances
+  // grievances relation removed - using direct imageUrl in Grievance model
 
   // Access policies - Allow all operations for development
   @@allow('all', true)

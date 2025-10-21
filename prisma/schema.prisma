@@ -80,18 +80,17 @@ model Grievance {
   area           String?
   status         GrievanceStatus      @default(OPEN)
   priority       Priority             @default(MEDIUM)
+  imageUrl       String?
   createdAt      DateTime             @default(now())
   lastUpdated    DateTime             @updatedAt()
   userId         String
   constituencyId String?
   departmentId   String?
   statusId       String?
-  mediaId        String?
   user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   constituency   Constituency?        @relation(fields: [constituencyId], references: [id], onDelete: SetNull)
   department     GrievanceDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   statusEnum     GrievanceStatusEnum? @relation(fields: [statusId], references: [id], onDelete: SetNull)
-  media          Media?               @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   comments       GrievanceComment[]
 }
 
@@ -136,6 +135,7 @@ model Project {
   description   String
   location      String?
   projectStatus String?
+  imageUrl      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt()
 }
@@ -151,13 +151,12 @@ model ScheduleEvent {
 }
 
 model Media {
-  id         String      @id() @default(cuid())
-  title      String
-  mediaUrl   String
-  type       MediaType
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt()
-  grievances Grievance[]
+  id        String    @id() @default(cuid())
+  title     String
+  mediaUrl  String
+  type      MediaType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
 }
 
 model Notification {
